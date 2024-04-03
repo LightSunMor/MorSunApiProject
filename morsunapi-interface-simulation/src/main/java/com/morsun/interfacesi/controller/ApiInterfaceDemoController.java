@@ -12,7 +12,6 @@ import com.morsun.interfacesi.utils.RequestUtils;
 import com.morsun.interfacesi.utils.ResponseUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.apache.commons.lang3.StringUtils;
 /**
@@ -96,4 +95,5 @@ public class ApiInterfaceDemoController {
     }
 
     //...todo 待提供更多的接口
+
 }

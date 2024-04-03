@@ -2,3 +2,7 @@ server:
   port: 8011
   servlet:
     context-path: /api-m # ????
+morsun:
+  client:
+    access-key: 327ed44fa5561f6c8e1f8541b1f664f4
+    secret-key: e6103afb62a8e8d9c3364a719fba04b5
