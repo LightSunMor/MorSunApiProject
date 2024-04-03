@@ -1,0 +1,31 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: MorSunGateWay-consumer
+  cloud:
+    gateway:
+      routes:
+        - id: api-route1
+          uri: http://localhost:8011  # ?????????????????????/????????host???? localhost:8090
+          # 预测predicate ，如果符合条件就跳转到8011 （如果有多种类型的接口，可以通过业务类型进行划分，比如/work /life /love /boy ...）
+          predicates:
+            - Path=/api-m/**,/test/{segment}
+
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE # 降低日志级别
+    org.springframework.http.server.reactive: DEBUG
+    org.springframework.web.reactive: DEBUG
+    reactor.ipc.netty: DEBUG
+    reactor.netty: DEBUG
+
+dubbo:
+  application:
+    name: MSapi-gateway
+  protocol:
+    name: dubbo
+    port: -1
+  registry:
+    address: nacos://127.0.0.1:8848

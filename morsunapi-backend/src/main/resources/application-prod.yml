@@ -1,0 +1,31 @@
+# 线上配置文件
+# @author morsun
+# @from 知识星球
+server:
+  port: 8101
+spring:
+  # 数据库配置
+  # todo 需替换配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/morsunapi
+    username: root
+    password: aa9ac66dbb2d8853
+  # Redis 配置
+  # todo 需替换配置
+  redis:
+    database: 1
+    host: 127.0.0.1
+    port: 6379
+    timeout: 50000
+    password: 123456
+  # Elasticsearch 配置
+  # todo 需替换配置
+#  elasticsearch:
+#    uris: http://localhost:9200
+#    username: root
+#    password: 123456
+mybatis-plus:
+  configuration:
+    # 生产环境关闭日志
+    log-impl: ''

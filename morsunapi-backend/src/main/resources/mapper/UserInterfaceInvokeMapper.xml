@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.morsun.springbootinit.mapper.UserInterfaceInvokeMapper">
+
+    <resultMap id="BaseResultMap" type="com.morsun.springbootinit.model.entity.UserInterfaceInvoke">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="userId" column="userId" jdbcType="VARCHAR"/>
+            <result property="interfaceInfoId" column="interfaceInfoId" jdbcType="VARCHAR"/>
+            <result property="status" column="status" jdbcType="INTEGER"/>
+            <result property="totalNum" column="totalNum" jdbcType="INTEGER"/>
+            <result property="leaveNum" column="leaveNum" jdbcType="INTEGER"/>
+            <result property="is_deleted" column="is_deleted" jdbcType="TINYINT"/>
+            <result property="create_time" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="update_time" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,userId,interfaceInfoId,
+        status,totalNum,leaveNum,
+        is_deleted,create_time,update_time
+    </sql>
+    <select id="listInterfaceAnalysis" resultType="com.morsun.springbootinit.model.entity.UserInterfaceInvoke"
+            parameterType="java.lang.Integer">
+        select interfaceInfoId, sum(totalNum) as totalNum from user_interface_invoke
+        group by interfaceInfoId order by totalNum desc limit #{n};
+    </select>
+</mapper>

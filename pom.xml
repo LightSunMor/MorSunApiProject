@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>MorSunApiProject</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+
+    <!--这里会出现子模块的声明，创建子模块自动生成-->
+    <!--这个modules既指明了他的子模块，也方便了三个模块的聚合打包等操作-->
+    <modules>
+        <module>MorSunApi-commom</module>
+        <module>morsunapi-interface-simulation</module>
+        <module>morsunapi-backend</module>
+        <module>morsunapi-gateway</module>
+    </modules>
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+
+    <!--制定打包用的插件和版本指定-->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+            </plugin>
+            <!-- 此插件必须放在父 POM 中  -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <!--
+                    执行本插件的方法为，在主目录下执行如下命令：
+                    mvn package assembly:single
+
+                    对于 IntelliJ IDEA，生成的 JAR 包位于每个模块下的文件夹 target
+                    -->
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <!-- 此处 IntelliJ IDEA 可能会报红，这是正常现象  -->
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <!-- 配置程序运行入口所在的类 -->
+                            <mainClass>com.morsun.springbootinit.MorsunapiBackendApplication</mainClass>
+                        </manifest>
+                        <manifest>
+                            <!-- 配置程序运行入口所在的类 -->
+                            <mainClass>com.morsun.morsunapigateway.MorsunapiGatewayApplication</mainClass>
+                        </manifest>
+                        <manifest>
+                            <!-- 配置程序运行入口所在的类 -->
+                            <mainClass>com.morsun.interfacesi.MorsunapiInterfaceSimulationApplication</mainClass>
+                        </manifest>
+                    </archive>
+                    <!-- 设置 JAR 包输出目录 -->
+                    <outputDirectory>${project.build.directory}/#maven-assembly-plugin</outputDirectory>
+                    <!-- 设置打包后的 JAR 包的目录结构为默认 -->
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
