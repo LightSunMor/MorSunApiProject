@@ -74,7 +74,7 @@ public class UserInterfaceInvokeServiceImpl extends ServiceImpl<UserInterfaceInv
     public QueryWrapper<UserInterfaceInvoke> getQueryWrapper(UserInterfaceInvokeQueryRequest userInterfaceInvokeQueryRequest) {
 
 
-        // todo: 分页条件查询处理
+        // 分页条件查询处理
         QueryWrapper<UserInterfaceInvoke> queryWrapper = new QueryWrapper<>();
 
         if (userInterfaceInvokeQueryRequest == null) {
@@ -98,7 +98,7 @@ public class UserInterfaceInvokeServiceImpl extends ServiceImpl<UserInterfaceInv
 
 
         queryWrapper.eq("is_deleted", ObjectUtil.isNotNull(is_deleted)?is_deleted:0);
-        // todo 排序处理，采用拼接sql的方法
+        // todo 知识点: 排序处理，采用拼接sql的方法
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);
         return queryWrapper;

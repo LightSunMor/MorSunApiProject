@@ -1,5 +1,6 @@
 package com.morsun.springbootinit.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -23,13 +24,17 @@ import com.morsun.springbootinit.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,6 +54,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 盐值，混淆密码
      */
     private static final String SALT = "morsun";
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      *  加密方法
@@ -332,5 +340,53 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         LambdaUpdateWrapper<User> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(User::getId,id).set(User::getUserPassword,encryptNew);
         return this.update(updateWrapper);
+    }
+
+    /**
+     *  更新API凭证
+     * @param request
+     * @return
+     */
+    @Override
+    public User updateVoucher(HttpServletRequest request) throws BusinessException{
+
+        User loginUser = this.getLoginUser(request);
+        String userAccount = loginUser.getUserAccount();
+        Long userId = loginUser.getId();
+        // 一、记录当前时间到redis，做7小时验证.存时间前先验证当前是否可以继续更新
+        Object o = stringRedisTemplate.opsForHash().get(CommonConstant.VOUCHER_CHANGE_REST_TIME, userId+"");//可能为空
+        Long current = System.currentTimeMillis();
+        if (ObjectUtil.isNull(o))
+        {
+            // 1.首次更新API
+            // 在当前时间+上7小时再存起来
+            Long past7hour =current+7*3600*1000;
+            stringRedisTemplate.opsForHash().putIfAbsent(CommonConstant.VOUCHER_CHANGE_REST_TIME,userId+"",past7hour+"");
+        }else {
+            // 2.不是第一次修改API凭证，判断是否可以继续修改
+            Long currentTimeMillis = System.currentTimeMillis();
+            String time = (String) o;
+
+            if (currentTimeMillis<Long.parseLong(time))
+            {
+                throw new BusinessException(ErrorCode.OPERATION_ERROR,"7hour内已修改过，请稍后再试");
+            }else {
+                // 在当前时间+上7小时再存起来
+                Long past7hour =current+7*3600*1000;
+                stringRedisTemplate.opsForHash().putIfAbsent(CommonConstant.VOUCHER_CHANGE_REST_TIME,userId+"",past7hour+"");
+            }
+        }
+
+        // 二、重新分配ak和sk
+        String ak = DigestUtil.md5Hex(SALT+userAccount+ RandomUtil.randomString(4));
+        String sk = DigestUtil.md5Hex(SALT+userAccount+ RandomUtil.randomString(7));
+        loginUser.setAccessKey(ak);
+        loginUser.setSecretKey(sk);
+
+        boolean res = this.updateById(loginUser);
+        if (!res) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "更新凭证失败，请重试");
+        }
+        return loginUser;
     }
 }

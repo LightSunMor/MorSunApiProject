@@ -1,5 +1,7 @@
 package com.morsun.springbootinit.controller;
 
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.morsun.springbootinit.annotation.AuthCheck;
 import com.morsun.springbootinit.common.BaseResponse;
@@ -22,6 +24,8 @@ import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
 import me.chanjar.weixin.mp.api.WxMpService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -240,6 +244,7 @@ public class UserController {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+        // todo 接入redis查询
         User user = userService.getById(id);
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR);
         return ResultUtils.success(user);
@@ -264,6 +269,12 @@ public class UserController {
         return ResultUtils.success(passwordTF);
     }
 
+    /**
+     *  更新用户密码
+     * @param userPasswordUpdateRequest
+     * @param request
+     * @return
+     */
     @PostMapping("/update/ps")
     public  BaseResponse<Boolean> updateUserPsById(@RequestBody UserPasswordUpdateRequest userPasswordUpdateRequest,HttpServletRequest request){
         //1.验证id是否存在
@@ -274,6 +285,24 @@ public class UserController {
 
         //2.修改用户密码
         boolean b = userService.updatePassword(userPasswordUpdateRequest, loginUser.getId());
+        return ResultUtils.success(b);
+    }
+
+    /**
+     *  用户购买太阳币后，修改太阳币余额
+     * @param addCoinNum
+     * @return
+     */
+    @GetMapping("/addCoin")
+    public BaseResponse<Boolean> purchaseCoinResult(@RequestParam("inCoin") Integer addCoinNum,HttpServletRequest request){
+        //1.验证id是否存在
+        if (request == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        // 2.修改太阳币余额
+        loginUser.setRestAmountCoin(loginUser.getRestAmountCoin()+addCoinNum);
+        boolean b = userService.updateById(loginUser);
         return ResultUtils.success(b);
     }
 
@@ -361,6 +390,23 @@ public class UserController {
         user.setId(loginUser.getId());
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+
         return ResultUtils.success(true);
+    }
+
+    /**
+     *  随机更新用户的API签名，防止用户损失利益
+     *  7小时可更新一次
+     * @return
+     */
+    @GetMapping("/update/voucher")
+    @Transactional
+    public BaseResponse<User> updateUserVoucher(HttpServletRequest request){
+
+        ThrowUtils.throwIf(request ==null,ErrorCode.PARAMS_ERROR,"请求错误");
+
+        User user = userService.updateVoucher(request);
+
+        return ResultUtils.success(user);
     }
 }

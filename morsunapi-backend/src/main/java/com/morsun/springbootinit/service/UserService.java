@@ -123,4 +123,12 @@ public interface UserService extends IService<User> {
 
     // 修改密码是否正确
     boolean updatePassword(UserPasswordUpdateRequest userPasswordUpdateRequest, Long id);
+
+    /**
+     *  更新API凭证
+     * @param request
+     * @return
+     */
+    User updateVoucher(HttpServletRequest request);
+
 }

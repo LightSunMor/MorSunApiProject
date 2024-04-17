@@ -17,5 +17,19 @@ public interface CommonConstant {
      * 降序
      */
     String SORT_ORDER_DESC = " descend";
-    
+
+    /**
+     * 错误
+     */
+    String ERROR="error";
+
+    /**
+     *  成功结束
+     */
+    String SUCCESS="done";
+
+    /**
+     *  存储每次更新API权限时的时间，记得要分用户哦
+     */
+    String VOUCHER_CHANGE_REST_TIME="voucherchangeresttime";
 }

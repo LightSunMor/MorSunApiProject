@@ -84,13 +84,13 @@ wx:
     appId: xxx
     appSecret: xxx
 # 对象存储
-# todo 需替换配置
+# todo cos 需替换配置（记得上传时要脱敏哦）
 cos:
   client:
-    accessKey: xxx
-    secretKey: xxx
-    region: xxx
-    bucket: xxx
+    accessKey:
+    secretKey:
+    region:
+    bucket:
 morsun:
   client:
     access-key: 327ed44fa5561f6c8e1f8541b1f664f4
